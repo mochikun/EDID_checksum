@@ -20,26 +20,32 @@
 
 from struct import *
 import sys
+import os
 
 argvs = sys.argv
 argc = len(argvs)
 
 if (argc != 2):
-	print("please input edid binary file path for argument")
-	quit()
+    print("please input edid binary file path for argument")
+    quit()
 
-f = open(argvs[1],'rb')
-sum = 0
-for i in range(127):
-	tmp = unpack('B',f.read(1))[0]
-#	print('read:%d' % tmp)
-	sum = sum + tmp
+size = os.path.getsize(argvs[1])
+if size >= 127:
+    f = open(argvs[1],'rb')
+    sum = 0
+    for i in range(127):
+        tmp = unpack('B',f.read(1))[0]
+    #	print('read:%d' % tmp)
+        sum = sum + tmp
 
-csum = unpack('B',f.read(1))[0]
-m = 256 - (sum % 256)
-print('Actual: %x' % csum)
-print('Calced: %x' % m)
-if (csum == m):
-	print('Match!')
+    m = 256 - (sum % 256)
+    print('Calced: %x' % m)
+    if size >= 128:
+        csum = unpack('B',f.read(1))[0]
+        print('Actual: %x' % csum)
+        if (csum == m):
+            print('Match!')
+        else:
+            print('Un-match...')
 else:
-	print('Un-match...')
+    print("Please input binary size > 127 Bytes")
